@@ -2,7 +2,16 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+} from 'react-native';
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -21,7 +30,7 @@ interface ContactForm {
   endDate: string;
 }
 
-const ACCENT = '#5B8CFF';
+const ACCENT = '#D4AF37';
 
 export const BookingScreen = () => {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
@@ -146,7 +155,7 @@ export const BookingScreen = () => {
         ) : (
           vehicles.map((vehicle, index) => (
             <Animated.View entering={FadeInDown.delay(index * 80)} key={vehicle.id}>
-              <BlurView intensity={40} tint="light" style={styles.card}>
+              <BlurView intensity={45} tint="dark" style={styles.card}>
                 <Text style={styles.cardTitle}>
                   {vehicle.brand} {vehicle.model}
                 </Text>
@@ -162,7 +171,14 @@ export const BookingScreen = () => {
         )}
       </ScrollView>
 
-      <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints} enablePanDownToClose={false}>
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={0}
+        snapPoints={snapPoints}
+        enablePanDownToClose={false}
+        backgroundStyle={styles.sheetBackground}
+        handleIndicatorStyle={styles.sheetHandle}
+      >
         <BottomSheetView style={styles.sheetContent}>
           <Text style={styles.sheetTitle}>Finaliser la réservation</Text>
           <Text style={styles.sheetHint}>Dates au format YYYY-MM-DD</Text>
@@ -170,12 +186,14 @@ export const BookingScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Nom complet"
+            placeholderTextColor="#8E8E8E"
             value={form.clientName}
             onChangeText={(value) => updateField('clientName', value)}
           />
           <TextInput
             style={styles.input}
             placeholder="Email"
+            placeholderTextColor="#8E8E8E"
             keyboardType="email-address"
             autoCapitalize="none"
             value={form.clientEmail}
@@ -184,6 +202,7 @@ export const BookingScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Téléphone"
+            placeholderTextColor="#8E8E8E"
             keyboardType="phone-pad"
             value={form.clientPhone}
             onChangeText={(value) => updateField('clientPhone', value)}
@@ -191,12 +210,14 @@ export const BookingScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Date début"
+            placeholderTextColor="#8E8E8E"
             value={form.startDate}
             onChangeText={(value) => updateField('startDate', value)}
           />
           <TextInput
             style={styles.input}
             placeholder="Date fin"
+            placeholderTextColor="#8E8E8E"
             value={form.endDate}
             onChangeText={(value) => updateField('endDate', value)}
           />
@@ -235,7 +256,7 @@ export const BookingScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0E1118',
+    backgroundColor: '#070707',
   },
   container: {
     padding: 20,
@@ -243,31 +264,42 @@ const styles = StyleSheet.create({
     paddingBottom: 220,
   },
   title: {
-    color: '#FFFFFF',
+    color: '#F8F8F8',
     fontSize: 30,
     fontWeight: '700',
-    letterSpacing: 0.3,
+    letterSpacing: 1.2,
   },
   subtitle: {
-    color: '#BFC6D8',
+    color: '#D9CDA3',
     marginBottom: 8,
-    letterSpacing: 0.2,
+    letterSpacing: 0.8,
   },
   card: {
     borderRadius: 22,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.32)',
+    borderColor: 'rgba(212,175,55,0.26)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowRadius: 18,
+        shadowOffset: { width: 0, height: 8 },
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   cardTitle: {
-    color: '#FFFFFF',
+    color: '#FAFAFA',
     fontSize: 18,
     fontWeight: '600',
   },
   cardMeta: {
-    color: '#DDE4F8',
+    color: '#D7C58A',
     marginTop: 4,
   },
   pickButton: {
@@ -279,31 +311,42 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   pickButtonLabel: {
-    color: '#FFFFFF',
+    color: '#090909',
     fontWeight: '600',
+    letterSpacing: 0.5,
+  },
+  sheetBackground: {
+    backgroundColor: '#0F0F0F',
+    borderTopWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  sheetHandle: {
+    backgroundColor: 'rgba(212,175,55,0.7)',
   },
   sheetContent: {
     flex: 1,
     paddingHorizontal: 20,
     gap: 10,
-    backgroundColor: '#F5F7FD',
+    backgroundColor: '#0F0F0F',
   },
   sheetTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#141A27',
+    color: '#F8F8F8',
+    letterSpacing: 0.8,
   },
   sheetHint: {
-    color: '#6D7790',
+    color: '#B5A97B',
     marginBottom: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#D4DBEC',
+    borderColor: 'rgba(212,175,55,0.35)',
     borderRadius: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     paddingHorizontal: 14,
     paddingVertical: 10,
+    color: '#FFFFFF',
   },
   payButton: {
     marginTop: 6,
@@ -316,20 +359,21 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   payButtonLabel: {
-    color: '#FFFFFF',
+    color: '#090909',
     fontSize: 16,
     fontWeight: '700',
+    letterSpacing: 0.5,
   },
   successText: {
-    color: '#0D8B4B',
+    color: '#E8D58C',
     fontWeight: '600',
   },
   errorText: {
-    color: '#B12626',
+    color: '#FF8C8C',
     fontWeight: '600',
   },
   depositText: {
-    color: '#283149',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
 });

@@ -4,8 +4,26 @@ Monorepo production-ready pour une application mobile Expo + API Express/TypeScr
 
 ## Structure
 
-- `app/` — application mobile React Native (Expo SDK récent, TypeScript strict)
-- `server/` — API Node.js + Express (TypeScript strict)
+```text
+.
+├── app/
+│   ├── src/
+│   │   ├── screens/BookingScreen.tsx      # flow unique de réservation + Stripe PaymentSheet
+│   │   ├── services/api/                  # client HTTP et appels backend typés
+│   │   └── navigation/RootNavigator.tsx   # navigation principale mobile
+│   ├── app.json                            # configuration Expo
+│   └── .env.example                        # variables Expo publiques
+├── server/
+│   ├── src/
+│   │   ├── routes/                         # /api/vehicles, /api/reservations, /api/admin, webhook Stripe
+│   │   ├── middlewares/                    # auth JWT + gestion centralisée des erreurs
+│   │   ├── config/                         # env, pool mysql2/promise, client Stripe
+│   │   └── index.ts                        # point d'entrée API Express
+│   ├── sql/schema.sql                      # schéma MySQL (vehicles, reservations, admins)
+│   └── .env.example                        # secrets et configuration backend
+├── package.json                            # scripts monorepo
+└── .gitignore                              # exclusion des secrets/artifacts
+```
 
 ## Prérequis
 
@@ -38,11 +56,11 @@ Copier `server/.env.example` vers `server/.env` puis renseigner:
 ```env
 NODE_ENV=development
 PORT=4000
-CORS_ORIGIN=http://localhost:8081
-MYSQL_HOST=127.0.0.1
+CORS_ORIGIN=*
+MYSQL_HOST=localhost
 MYSQL_PORT=3306
-MYSQL_USER=laks
-MYSQL_PASSWORD=laks_password
+MYSQL_USER=root
+MYSQL_PASSWORD=
 MYSQL_DATABASE=laks_location
 STRIPE_SECRET_KEY=sk_test_xxx
 STRIPE_WEBHOOK_SECRET=whsec_xxx
@@ -61,8 +79,8 @@ docker compose up -d
 ## Initialiser le schéma + seed
 
 ```bash
-mysql -u laks -p laks_location < server/sql/schema.sql
-mysql -u laks -p laks_location < server/sql/seed.sql
+mysql -u root laks_location < server/sql/schema.sql
+mysql -u root laks_location < server/sql/seed.sql
 ```
 
 ## Lancer le projet
