@@ -1,53 +1,110 @@
-# 🚗 Laks - Application de Location de Véhicules
+# Laks Location
 
-**Laks** est une application mobile (iOS et Android) permettant de louer facilement des véhicules citadins et de luxe. Elle intègre un système de paiement sécurisé via Stripe pour gérer les prises d'acompte lors de la réservation.
+Monorepo production-ready pour une application mobile Expo + API Express/TypeScript avec MySQL et Stripe (acompte).
 
----
+## Structure
 
-## 📱 Fonctionnalités
+- `app/` — application mobile React Native (Expo SDK récent, TypeScript strict)
+- `server/` — API Node.js + Express (TypeScript strict)
 
-* **Catalogue double :** Véhicules économiques (citadines) et premium (luxe).
-* **Réservation simple :** Choix des dates via un calendrier intuitif.
-* **Paiement sécurisé :** Intégration de Stripe pour le paiement par carte.
-* **Système d'acompte :** Le client paie seulement un acompte pour bloquer le véhicule, le reste est réglé plus tard.
+## Prérequis
 
----
+- Node.js 20+
+- npm 10+
+- MySQL 8+
+- Stripe CLI (pour les webhooks en local)
 
-## 🛠️ Installation rapide
-
-**1. Cloner le projet**
-
-```bash
-git clone https://github.com/votre-nom/laks-app.git
-cd laks-app
-
-```
-
-**2. Installer les dépendances**
+## Installation
 
 ```bash
 npm install
-
 ```
 
-**3. Configurer Stripe**
-Créez un fichier `.env` à la racine du projet et ajoutez vos clés API Stripe :
+## Variables d'environnement
+
+### App (`app/.env`)
+
+Copier `app/.env.example` vers `app/.env` puis renseigner:
 
 ```env
-STRIPE_PUBLISHABLE_KEY=pk_test_votre_cle
-STRIPE_SECRET_KEY=sk_test_votre_cle
-
+EXPO_PUBLIC_API_BASE_URL=http://localhost:4000
+EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
 ```
 
-**4. Lancer l'application**
+### Server (`server/.env`)
+
+Copier `server/.env.example` vers `server/.env` puis renseigner:
+
+```env
+NODE_ENV=development
+PORT=4000
+CORS_ORIGIN=http://localhost:8081
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=laks
+MYSQL_PASSWORD=laks_password
+MYSQL_DATABASE=laks_location
+STRIPE_SECRET_KEY=sk_test_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+JWT_SECRET=replace-with-a-long-random-secret-of-at-least-32-characters
+JWT_EXPIRES_IN=12h
+DEPOSIT_PERCENT=30
+```
+
+## Lancer MySQL (option Docker)
 
 ```bash
-npm start
-
+cd server
+docker compose up -d
 ```
 
----
+## Initialiser le schéma + seed
 
-## 💳 Comment fonctionne l'acompte (Stripe) ?
+```bash
+mysql -u laks -p laks_location < server/sql/schema.sql
+mysql -u laks -p laks_location < server/sql/seed.sql
+```
 
-L'application utilise Stripe PaymentIntents. Au moment de valider sa location, le client ne paie qu'un pourcentage du prix total (l'acompte). Ce paiement valide instantanément la réservation dans la base de données.
+## Lancer le projet
+
+### API
+
+```bash
+npm run dev:server
+```
+
+### App Expo
+
+```bash
+npm run dev:app
+```
+
+## Scripts utiles
+
+Racine:
+
+- `npm run dev`
+- `npm run dev:server`
+- `npm run dev:app`
+- `npm run build`
+- `npm run lint`
+- `npm run typecheck`
+
+## Stripe webhooks en local
+
+Démarrer l'écoute Stripe vers l'API:
+
+```bash
+stripe listen --forward-to localhost:4000/api/webhooks/stripe
+```
+
+Récupérer le `webhook signing secret` renvoyé par Stripe CLI et le placer dans `STRIPE_WEBHOOK_SECRET`.
+
+## Notes de sécurité
+
+- Requêtes SQL **préparées uniquement** via `mysql2/promise`.
+- Secrets via variables d'environnement uniquement (`.env` non versionné).
+- Auth admin avec JWT signé côté serveur + hash Bcrypt.
+- Aucune donnée bancaire en clair: saisie et traitement carte via Stripe PaymentSheet.
+- Le statut de paiement en base est mis à jour **uniquement** via webhook Stripe (source de vérité).
+- Idempotence webhook gérée avec `stripe_event_last_id`.
