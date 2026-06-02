@@ -1,7 +1,3 @@
-Voici une version beaucoup plus simple, directe et facile à lire.
-
----
-
 # 🚗 Laks - Application de Location de Véhicules
 
 **Laks** est une application mobile (iOS et Android) permettant de louer facilement des véhicules citadins et de luxe. Elle intègre un système de paiement sécurisé via Stripe pour gérer les prises d'acompte lors de la réservation.
